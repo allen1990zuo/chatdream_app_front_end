@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-frontend-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-frontend-client
+  template:
+    metadata:
+      labels:
+        app: chat-frontend-client
+    spec:
+      containers:
+        - name: chat-frontend-client
+          image: allen1990zuo/chat_frontend_client:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
