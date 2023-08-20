@@ -46,4 +46,4 @@ jobs:
         doctl kubernetes cluster kubeconfig save ${{ secrets.DOKS_CLUSTER }}
     - name: Deploy to DigitalOcean Kubernetes
       run: |
-        kubectl rollout undo deployment/chat_frontend_client -n dev
+        kubectl rollout undo deployment/chat-frontend-client -n dev
