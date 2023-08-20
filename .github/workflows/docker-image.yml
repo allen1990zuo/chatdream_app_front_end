@@ -1,0 +1,49 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -f client/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:latest
+        # docker push ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:$GITHUB_SHA
+
+        
+  deploy_to_doks:
+    # needs: build_and_push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Install doctl
+      run: |
+        sudo snap install doctl
+        DIGITALOCEAN_ACCESS_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} doctl auth init
+        sudo snap connect doctl:kube-config
+        sudo mkdir /home/runner/.kube
+        sudo chmod 755 /home/runner/.kube
+        sudo chown runner.docker /home/runner/.kube
+        doctl kubernetes cluster kubeconfig save ${{ secrets.DOKS_CLUSTER }}
+    - name: Deploy to DigitalOcean Kubernetes
+      run: |
+        kubectl rollout undo deployment/chat_frontend_client -n dev
