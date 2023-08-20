@@ -23,7 +23,7 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:latest .
+        docker build -f client/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:latest .
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:latest
         # docker push ${{ secrets.DOCKERHUB_USERNAME }}/chat_frontend_client:$GITHUB_SHA
 
